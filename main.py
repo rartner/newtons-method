@@ -55,13 +55,12 @@ def solve_system(p, X):
     return np.add(X, w)
 
 
-def fst_test(p):
+def fst_test(p, X):
     u"""
     Uma sequência cujo termo X(5) aproxima a outra solução com erro < 0.00001
     em exatamente 5 iterações.
     """
     print ('==> primeira situação:')
-    X = [3, 3]
     for i in range(5):
         oldX = X
         X = solve_system(p, X)
@@ -70,12 +69,11 @@ def fst_test(p):
     str_result('Resultado após 5 iterações:', X, get_error(oldX, X), p)
 
 
-def snd_test(p):
+def snd_test(p, X):
     u"""
     Uma sequência cujo termo X(5) aproxima a outra solução com erro < 0.00001.
     """
     print ('==========================================\n==> segunda situação:')
-    X = [0.3, 1.3]
     for i in range(5):
         oldX = X
         X = solve_system(p, X)
@@ -87,14 +85,14 @@ def snd_test(p):
     str_result('Resultado após 5 iterações:', X, get_error(oldX, X), p)
 
 
-def trd_test(p):
+def trd_test(p, X):
     u"""
     Uma sequência que (por algum motivo) não resulte em uma aproximação de
     nenhuma das soluções com erro absoluto menor do que 0.00001, mesmo se
     tentar executar 1000 iterações.
     """
     print ('=========================================\n==> terceira situação:')
-    X = (100, 100)
+
     for i in range(1000):
         oldX = X
         X = solve_system(p, X)
@@ -122,9 +120,14 @@ def main():
         '-p', choices=[22, 29], help='valor de p para o sistema', type=int)
 
     args = parser.parse_args()
-    fst_test(args.p)
-    snd_test(args.p)
-    trd_test(args.p)
+    if (args.p == 22):
+        fst_test(args.p, [0.5, 1.5])
+        snd_test(args.p, [0.3, 1.3])
+        trd_test(args.p, [123, 100])
+    else:
+        fst_test(args.p, [0.5, 1.7])
+        snd_test(args.p, [0.3, 1.3])
+        trd_test(args.p, [100, 100])
 
 
 if __name__ == '__main__':
