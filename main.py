@@ -1,6 +1,8 @@
 u"""Método de Newton para sistemas não lineares."""
 import argparse
+import math
 import numpy as np
+
 
 # Funções do sistema dado
 def fst_function(p, x1, x2):
@@ -55,51 +57,26 @@ def solve_system(p, X):
     return np.add(X, w)
 
 
-def fst_test(p, X):
-    u"""
-    Uma sequência cujo termo X(5) aproxima a outra solução com erro < 0.00001
-    em exatamente 5 iterações.
-    """
-    print ('==> primeira situação:')
-    for i in range(5):
+def get_result(p, X, verbose_mode):
+    u"""Calcula os valores de X para que o sistema seja igual a 0."""
+    error = 1
+    iteration = 0
+    print ('X0: ({x}, {y})'.format(x=X[0], y=X[1]))
+    print ('Primeiras 5 iterações:')
+    print ('k: \tx1: \t\tx2: \t\tEabs')
+    while (error > 0.00001 and iteration <= 1000):
+        iteration += 1
         oldX = X
         X = solve_system(p, X)
-        error = get_error(oldX, X)
-        print ('x1: %.6g \tx2: %.6g \tEabs: %.6g' % (X[0], X[1], error))
-    str_result('Resultado após 5 iterações:', X, get_error(oldX, X), p)
-
-
-def snd_test(p, X):
-    u"""
-    Uma sequência cujo termo X(5) aproxima a outra solução com erro < 0.00001.
-    """
-    print ('==========================================\n==> segunda situação:')
-    for i in range(5):
-        oldX = X
-        X = solve_system(p, X)
-        error = get_error(oldX, X)
-        print ('x1: %.6g \tx2: %.6g \tEabs: %.6g' % (X[0], X[1], error))
-        if (error < 0.00001):
-            str_result('Resultado após {} iterações:'.format(i+1), X, error, p)
-            return
-    str_result('Resultado após 5 iterações:', X, get_error(oldX, X), p)
-
-
-def trd_test(p, X):
-    u"""
-    Uma sequência que (por algum motivo) não resulte em uma aproximação de
-    nenhuma das soluções com erro absoluto menor do que 0.00001, mesmo se
-    tentar executar 1000 iterações.
-    """
-    print ('=========================================\n==> terceira situação:')
-
-    for i in range(1000):
-        oldX = X
-        X = solve_system(p, X)
-        if (i < 5):
-            error = get_error(oldX, X)
+        if (math.isnan(X[0]) or math.isnan(X[1])):
+            print ('\nFalha na iteração:', iteration)
             print ('x1: %.6g \tx2: %.6g \tEabs: %.6g' % (X[0], X[1], error))
-    str_result('Resultado após 1000 iterações:', X, get_error(oldX, X), p)
+            print ('Execute com a flag -v para acompanhar o processo.')
+            return
+        error = get_error(oldX, X)
+        if (iteration <= 5 or verbose_mode):
+            print ('%g \t%.6g \t%.6g \t%.6g' % (iteration, X[0], X[1], error))
+    str_result('Resultado após {} iterações:'.format(iteration), X, error, p)
 
 
 def str_result(string, result, error, p):
@@ -118,16 +95,25 @@ def main():
                 description='Metodo de Newton para sistemas nao lineares')
     parser.add_argument(
         '-p', choices=[22, 29], help='valor de p para o sistema', type=int)
+    parser.add_argument(
+        '-v', help='use verbose mode', action='store_true')
 
     args = parser.parse_args()
     if (args.p == 22):
-        fst_test(args.p, [0.5, 1.5])
-        snd_test(args.p, [0.3, 1.3])
-        trd_test(args.p, [123, 100])
+        print ('=============================> primeiro caso:')
+        get_result(args.p, [0.5, 1.5], args.v)
+        print ('=============================> segundo caso:')
+        get_result(args.p, [4, 6], args.v)
+        print ('=============================> terceiro caso:')
+        # TODO: outro teste => get_result(args.p, [19, 1], args.v)
+        get_result(args.p, [4.559999999999947, 4.559999999999947], args.v)
     else:
-        fst_test(args.p, [0.5, 1.7])
-        snd_test(args.p, [0.3, 1.3])
-        trd_test(args.p, [100, 100])
+        print ('=============================> primeiro caso:')
+        get_result(args.p, [0.5, 1.7], args.v)
+        print ('=============================> segundo caso:')
+        get_result(args.p, [4, 6], args.v)
+        print ('=============================> terceiro caso:')
+        get_result(args.p, [5.09, 5.09], args.v)
 
 
 if __name__ == '__main__':
